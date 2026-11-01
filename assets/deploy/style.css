@@ -1,0 +1,7 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: #10131a; color: #e8edf5; line-height: 1.7; }
+header { padding: 65px 8%; background: #192338; }
+header h1 { font-size: 42px; margin: 0; }
+main { max-width: 900px; margin: 50px auto; padding: 0 24px; }
+h2 { color: #75aaff; }
+footer { padding: 25px; text-align: center; color: #9aa8bc; border-top: 1px solid #293244; }
