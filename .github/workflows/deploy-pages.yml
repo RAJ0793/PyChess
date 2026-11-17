@@ -1,3 +1,4 @@
+
 name: Deploy PyChess Documentation
 
 on:
@@ -16,33 +17,59 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, Windows, X64]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy local documentation
+      - name: Prepare website files
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Stop"
+
           $source = "D:\Projects\PyChess\assets\deploy"
           $site = Join-Path $env:GITHUB_WORKSPACE "_site"
-          if (!(Test-Path "$source\index.html")) { throw "index.html not found" }
-          New-Item -ItemType Directory -Force -Path $site | Out-Null
-          Copy-Item -Path "$source\*" -Destination $site -Recurse -Force
+
+          if (!(Test-Path "$source\index.html")) {
+              throw "index.html not found"
+          }
+
+          New-Item -ItemType Directory -Force -Path $site |
+              Out-Null
+
+          Copy-Item "$source\*" $site -Recurse -Force
+
           Get-ChildItem $site -Recurse -File
+
+      - name: Upload website files
+        uses: actions/upload-artifact@v4
+        with:
+          name: pychess-site
+          path: _site/
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download website files
+        uses: actions/download-artifact@v4
+        with:
+          name: pychess-site
+          path: _site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
