@@ -14,14 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, Windows, X64]
 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Prepare website files
       - name: Prepare website files
         shell: pwsh
         run: |
@@ -31,7 +37,11 @@ jobs:
           $site = Join-Path $env:GITHUB_WORKSPACE "_site"
 
           if (!(Test-Path "$source\index.html")) {
-              throw "index.html not found"
+              throw "index.html not found: $source"
+          }
+
+          if (Test-Path $site) {
+              Remove-Item $site -Recurse -Force
           }
 
           New-Item -ItemType Directory -Force -Path $site |
@@ -39,37 +49,60 @@ jobs:
 
           Copy-Item "$source\*" $site -Recurse -Force
 
+          Write-Host "Website files:"
           Get-ChildItem $site -Recurse -File
 
-      - name: Upload website files
-        uses: actions/upload-artifact@v4
-        with:
-          name: pychess-site
-          path: _site/
-          if-no-files-found: error
-          retention-days: 1
+          if (!(Test-Path "$site\index.html")) {
+              throw "Deployment index.html missing"
+          }
 
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
+      # 3. Configure Git Bash
+      - name: Configure Git Bash
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+          $GitBin = "C:\Program Files\Git\bin"
+          $GitUsrBin = "C:\Program Files\Git\usr\bin"
 
-    steps:
-      - name: Download website files
-        uses: actions/download-artifact@v4
-        with:
-          name: pychess-site
-          path: _site
+          if (!(Test-Path "$GitBin\bash.exe")) {
+              throw "Git Bash not found: $GitBin\bash.exe"
+          }
 
+          if (!(Test-Path "$GitUsrBin\tar.exe")) {
+              throw "Git TAR not found: $GitUsrBin\tar.exe"
+          }
+
+          Add-Content -Path $env:GITHUB_PATH -Value $GitUsrBin
+          Add-Content -Path $env:GITHUB_PATH -Value $GitBin
+
+      # 4. Verify archive tools
+      - name: Verify Git Bash and TAR
+        shell: pwsh
+        run: |
+          $bash = (Get-Command bash.exe -ErrorAction Stop).Source
+          $tar = (Get-Command tar.exe -ErrorAction Stop).Source
+
+          Write-Host "Bash: $bash"
+          Write-Host "TAR:  $tar"
+
+          if ($bash -notlike "C:\Program Files\Git\*") {
+              throw "Wrong Bash detected. WSL launcher must not be used."
+          }
+
+          if ($tar -notlike "C:\Program Files\Git\*") {
+              throw "Wrong TAR detected."
+          }
+
+          Write-Host "Git archive tools verified successfully."
+
+      # 5. Upload Pages artifact
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
+      # 6. Deploy website
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
