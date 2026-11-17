@@ -1,5 +1,5 @@
 
-name: Deploy PyChess Documentation
+name: Deploy PyChess Website
 
 on:
   workflow_dispatch:
@@ -14,47 +14,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
-  # =====================================
-  # JOB 1: Prepare website on Windows
-  # =====================================
   build:
+    name: Prepare Website (Windows)
     if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, Windows, X64]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Prepare website files
+      - name: Prepare Website Files
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
 
-          $source = "D:\Projects\PyChess\assets\deploy"
-          $site = Join-Path $env:GITHUB_WORKSPACE "_site"
+          $Source = "D:\Projects\PyChess\assets\deploy"
+          $Site = Join-Path $env:GITHUB_WORKSPACE "_site"
 
-          if (!(Test-Path "$source\index.html")) {
-              throw "index.html not found: $source"
+          if (!(Test-Path "$Source\index.html")) {
+              throw "Website index.html not found: $Source"
           }
 
-          if (Test-Path $site) {
-              Remove-Item $site -Recurse -Force
+          if (Test-Path $Site) {
+              Remove-Item $Site -Recurse -Force
           }
 
-          New-Item -ItemType Directory -Force -Path $site |
+          New-Item -ItemType Directory -Path $Site -Force |
               Out-Null
 
-          Copy-Item "$source\*" $site -Recurse -Force
+          Copy-Item "$Source\*" $Site -Recurse -Force
 
-          if (!(Test-Path "$site\index.html")) {
+          if (!(Test-Path "$Site\index.html")) {
               throw "Deployment index.html missing"
           }
 
-          Write-Host "Prepared website files:"
-          Get-ChildItem $site -Recurse -File
+          Write-Host "Website prepared successfully."
+          Get-ChildItem $Site -Recurse -File
 
-      - name: Upload website files
+      - name: Upload Website Artifact
         uses: actions/upload-artifact@v4
         with:
           name: pychess-site
@@ -62,10 +59,8 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  # =====================================
-  # JOB 2: Deploy using lightweight Linux
-  # =====================================
   deploy:
+    name: Deploy Website (GitHub Cloud)
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-slim
@@ -75,18 +70,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Download website files
+      - name: Download Website Artifact
         uses: actions/download-artifact@v4
         with:
           name: pychess-site
           path: _site
 
-      - name: Verify website files
+      - name: Verify Website Files
         run: |
           test -f _site/index.html
+          echo "Website files verified:"
           find _site -type f
 
-      - name: Upload Pages artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
