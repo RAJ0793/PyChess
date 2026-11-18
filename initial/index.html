@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d16">
+  <meta name="description" content="PyChess — intelligent chess, powerful engines, and AI research.">
+
+  <title>PyChess — A Python chess game</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+  <link rel="stylesheet" href="../style/style.css">
+  <script src="../backend/script.js" defer></script>
+</head>
+
+<body>
+  <div class="page-glow"></div>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a class="brand" href="#home" aria-label="PyChess home">
+      <span class="brand-icon">♞</span>
+      <span>PyChess</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#engines" class="nav-link">Engines</a>
+      <a href="#architecture" class="nav-link">Architecture</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+      <a href="../documentations/docs.html" class="nav-link">Documentation</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <span id="themeIcon">☀</span>
+      </button>
+
+      <a
+        class="github-button"
+        href="https://github.com/RAJ0793/PyChess"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Explore PyChess ↗
+      </a>
+
+      <button id="menuToggle" class="menu-toggle" aria-label="Open navigation">
+        ☰
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero section" id="home">
+      <div class="hero-content reveal">
+        <div class="eyebrow">
+          <span class="status-dot"></span>
+          CHESS ENGINEERING · AI RESEARCH
+        </div>
+
+        <h1>
+          Beyond the
+          <span class="gradient-text">Board.</span>
+        </h1>
+
+        <p class="hero-description">
+          A chess ecosystem built around intelligent engines, strategic
+          analysis, experimentation, and the pursuit of better decisions.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#features" class="primary-button">Explore features</a>
+          <a
+            href="https://github.com/RAJ0793/PyChess"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="secondary-button"
+          >
+            View GitHub ↗
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          <span>ENGINE-POWERED</span>
+          <span>AI-FOCUSED</span>
+          <span>OPEN SOURCE</span>
+        </div>
+      </div>
+
+      <div class="hero-board-area reveal">
+        <div class="board-caption">
+          <span>LIVE BOARD SIMULATION</span>
+          <span class="live-indicator">● LIVE</span>
+        </div>
+
+        <div class="board-scene">
+          <div class="board-shadow"></div>
+          <div id="chessBoard" class="chess-board" aria-label="Animated chess board"></div>
+        </div>
+
+        <div class="board-footer">
+          <span>WHITE</span>
+          <span id="moveStatus">Initializing game...</span>
+          <span>BLACK</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENGINE TICKER -->
+    <section class="engine-strip" id="engines">
+      <div class="ticker-heading">
+        <span class="status-dot"></span>
+        ENGINE ECOSYSTEM
+      </div>
+
+      <div class="ticker-window" id="tickerWindow">
+        <div class="ticker-track" id="tickerTrack">
+          <div class="engine-item">
+            <span class="engine-logo stockfish-logo">SF</span>
+            <span>
+              <strong>Stockfish</strong>
+              <small>Chess analysis engine</small>
+            </span>
+          </div>
+
+          <div class="engine-item">
+            <span class="engine-logo leela-logo">LC</span>
+            <span>
+              <strong>Leela Chess Zero</strong>
+              <small>Neural network chess engine</small>
+            </span>
+          </div>
+
+          <div class="engine-item">
+            <span class="engine-logo">♞</span>
+            <span>
+              <strong>UCI Integration</strong>
+              <small>Engine communication</small>
+            </span>
+          </div>
+
+          <div class="engine-item">
+            <span class="engine-logo">AI</span>
+            <span>
+              <strong>Self-play Research</strong>
+              <small>Learning through chess data</small>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section features-section" id="features">
+      <div class="section-heading reveal">
+        <span class="eyebrow">WHAT POWERS PYCHESS</span>
+        <h2>More than a chessboard.</h2>
+        <p>
+          A foundation for exploring chess engines, intelligent analysis,
+          and computational strategy.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card reveal">
+          <div class="feature-icon">♟</div>
+          <span class="feature-number">01 / ANALYSIS</span>
+          <h3>Strategic Intelligence</h3>
+          <p>
+            Explore positions, evaluate candidate moves, and study
+            tactical and positional ideas.
+          </p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-icon">⌘</div>
+          <span class="feature-number">02 / ENGINES</span>
+          <h3>Engine Integration</h3>
+          <p>
+            Build an ecosystem around UCI-compatible chess engines
+            and specialized analysis tasks.
+          </p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-icon">◈</div>
+          <span class="feature-number">03 / RESEARCH</span>
+          <h3>AI Experiments</h3>
+          <p>
+            Explore self-play, chess datasets, neural evaluation,
+            and engine comparisons.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CIRCULAR FEATURE TREE -->
+    <section class="section architecture-section" id="architecture">
+      <div class="section-heading reveal">
+        <span class="eyebrow">SYSTEM OVERVIEW</span>
+        <h2>A connected chess ecosystem.</h2>
+        <p>
+          Scroll through the architecture to explore the main areas
+          of the PyChess project.
+        </p>
+      </div>
+
+      <div class="architecture-layout">
+        <div class="architecture-tree reveal" id="architectureTree">
+          <div class="tree-ring ring-one"></div>
+          <div class="tree-ring ring-two"></div>
+          <div class="tree-ring ring-three"></div>
+
+          <div class="tree-center">
+            <span>♞</span>
+            <strong>PyChess</strong>
+            <small>CORE SYSTEM</small>
+          </div>
+
+          <div class="tree-node node-top" data-feature="engines">
+            <span>♜</span>
+            <small>Engines</small>
+          </div>
+
+          <div class="tree-node node-right" data-feature="analysis">
+            <span>⌕</span>
+            <small>Analysis</small>
+          </div>
+
+          <div class="tree-node node-bottom" data-feature="learning">
+            <span>◈</span>
+            <small>Learning</small>
+          </div>
+
+          <div class="tree-node node-left" data-feature="orchestration">
+            <span>⌘</span>
+            <small>Orchestration</small>
+          </div>
+        </div>
+
+        <div class="architecture-details reveal">
+          <span class="eyebrow">FEATURE EXPLORER</span>
+          <h3 id="architectureTitle">Engine ecosystem</h3>
+          <p id="architectureDescription">
+            Connect and coordinate chess engines through a common
+            communication layer.
+          </p>
+          <div class="architecture-progress">
+            <span id="architectureProgress"></span>
+          </div>
+          <small id="architectureCounter">01 / 04</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq-section" id="faq">
+      <div class="section-heading reveal">
+        <span class="eyebrow">QUESTIONS & ANSWERS</span>
+        <h2>Frequently asked questions.</h2>
+        <p>Some useful details about the PyChess project.</p>
+      </div>
+
+      <div class="faq-list">
+        <article class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            <span>What is PyChess?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>
+              PyChess is a chess-focused software project exploring
+              engine integration, chess analysis, and AI-related
+              experimentation.
+            </p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            <span>Which chess engines are relevant?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>
+              Engines such as Stockfish and Leela Chess Zero are useful
+              examples of traditional search-based and neural-network
+              chess approaches.
+            </p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            <span>Is the animated chessboard playable?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>
+              The board on this landing page is a visual demonstration.
+              It plays automatically and is not a user-controlled chess game.
+            </p>
+          </div>
+        </article>
+
+        <article class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            <span>Where can I explore the source code?</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>
+              Visit the PyChess GitHub repository to explore its source,
+              development history, and project updates.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section final-cta reveal">
+      <span class="eyebrow">THE NEXT MOVE IS YOURS</span>
+      <h2>Explore the project.</h2>
+      <p>
+        Follow the development and explore the source code on GitHub.
+      </p>
+      <a
+        href="https://github.com/RAJ0793/PyChess"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="primary-button"
+      >
+        Explore PyChess on GitHub ↗
+      </a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a href="#home" class="brand">
+      <span class="brand-icon">♞</span>
+      <span>PyChess</span>
+    </a>
+    <span>BUILT SMALL. THINKS BIG.</span>
+    <span>© <span id="currentYear"></span> PyChess</span>
+  </footer>
+</body>
+</html>
