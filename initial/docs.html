@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080d16">
+    <meta name="description" content="PyChess — Play. Learn. Analyze. Build. An open-source, offline chess game built with Python for chess players, learners, and developers.">
+
+    <title>PyChess Documentation</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./style/docs.css">
+</head>
+
+<body>
+
+    <header class="topbar" role="banner">
+
+        <div class="topbar-left">
+
+            <button class="icon-btn mobile-menu-btn"
+                    id="mobileMenuToggle"
+                    aria-label="Toggle navigation menu"
+                    aria-expanded="false"
+                    aria-controls="leftSidebar">
+
+                <svg width="20" height="20" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round">
+
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+
+                </svg>
+
+            </button>
+
+            <a href="#hero" class="brand" aria-label="PyChess Home">
+
+                <span class="brand-logo" aria-hidden="true">♞</span>
+                <span>PyChess</span>
+                <span class="brand-badge">Docs</span>
+
+            </a>
+
+        </div>
+
+        <div class="topbar-center">
+
+            <div class="search-wrapper" role="search">
+
+                <svg class="search-icon" width="16" height="16"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+                </svg>
+
+                <input id="docSearch"
+                       type="search"
+                       placeholder="Search documentation..."
+                       aria-label="Search documentation"
+                       autocomplete="off">
+
+                <kbd class="search-shortcut" aria-hidden="true">Ctrl K</kbd>
+
+                <div id="searchResults"
+                     class="search-dropdown"
+                     role="region"
+                     aria-live="polite"></div>
+
+            </div>
+
+        </div>
+
+        <div class="topbar-right">
+
+            <a class="nav-external-link"
+               href="https://github.com/RAJ0793/PyChess"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="PyChess GitHub Repository">
+
+                <span>GitHub</span>
+
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+
+                </svg>
+
+            </a>
+
+            <button id="themeToggle"
+                    class="icon-btn"
+                    type="button"
+                    aria-label="Toggle color theme"
+                    title="Toggle Light/Dark Theme">
+
+                <svg class="icon-sun" width="18" height="18"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+
+                </svg>
+
+                <svg class="icon-moon" width="18" height="18"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+
+                </svg>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <div class="docs-shell">
+
+        <!-- LEFT SIDEBAR -->
+
+        <aside class="left-sidebar"
+              id="leftSidebar"
+              aria-label="Documentation Navigation">
+
+            <nav class="sidebar-nav">
+
+                <div class="nav-category">
+
+                    <button class="category-toggle" type="button" aria-expanded="true">
+
+                        <span>Introduction</span>
+
+                        <svg class="chevron" width="14" height="14"
+                             viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+
+                            <polyline points="6 9 12 15 18 9"></polyline>
+
+                        </svg>
+
+                    </button>
+
+                    <ul class="category-list">
+                        <li><a href="#hero" class="nav-link active">PyChess</a></li>
+                        <li><a href="#overview" class="nav-link">Overview</a></li>
+                        <li><a href="#why-pychess" class="nav-link">Why PyChess?</a></li>
+                    </ul>
+
+                </div>
+
+
+                <div class="nav-category">
+
+                    <button class="category-toggle" type="button" aria-expanded="true">
+
+                        <span>Installation</span>
+
+                        <svg class="chevron" width="14" height="14"
+                             viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+
+                            <polyline points="6 9 12 15 18 9"></polyline>
+
+                        </svg>
+
+                    </button>
+
+                    <ul class="category-list">
+                        <li><a href="#get-started" class="nav-link">Get Started</a></li>
+                        <li><a href="#windows-exe" class="nav-link">Option 1 — Windows Executable</a></li>
+                        <li><a href="#python-package" class="nav-link">Option 2 — Python Package</a></li>
+                        <li><a href="#recommended-env" class="nav-link">Recommended Environment</a></li>
+                    </ul>
+
+                </div>
+
+
+                <div class="nav-category">
+
+                    <button class="category-toggle" type="button" aria-expanded="true">
+
+                        <span>Capabilities</span>
+
+                        <svg class="chevron" width="14" height="14"
+                             viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+
+                            <polyline points="6 9 12 15 18 9"></polyline>
+
+                        </svg>
+
+                    </button>
+
+                    <ul class="category-list">
+                        <li><a href="#features" class="nav-link">Features</a></li>
+                    </ul>
+
+                </div>
+
+
+                <div class="nav-category">
+
+                    <button class="category-toggle" type="button" aria-expanded="true">
+
+                        <span>Project Info</span>
+
+                        <svg class="chevron" width="14" height="14"
+                             viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+
+                            <polyline points="6 9 12 15 18 9"></polyline>
+
+                        </svg>
+
+                    </button>
+
+                    <ul class="category-list">
+                        <li><a href="#creator" class="nav-link">Who Created PyChess?</a></li>
+                        <li><a href="#faq" class="nav-link">Frequently Asked Questions</a></li>
+                        <li><a href="#feedback" class="nav-link">Feedback and Support</a></li>
+                        <li><a href="#credits" class="nav-link">Credits and Licensing</a></li>
+                    </ul>
+
+                </div>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+                <span class="status-indicator"></span>
+                <span>PyChess Documentation</span>
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN CONTENT -->
+
+        <main class="main-content" id="mainContent">
+
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                <a href="#hero">PyChess</a>
+                <span>/</span>
+                <span aria-current="page">Documentation</span>
+            </nav>
+
+
+            <article class="doc-article">
+
+                <!-- HERO -->
+
+                <section id="hero" class="doc-section hero-block">
+
+                    <span class="badge-eyebrow">Open-Source Offline Chess</span>
+
+                    <h1>PyChess</h1>
+
+                    <p class="hero-tagline">Play. Learn. Analyze. Build.</p>
+
+                    <p class="lead">
+                        An open-source, offline chess game built with Python
+                        for chess players, learners, and developers.
+                    </p>
+
+                    <p>
+                        Explore chess, analyze positions, improve your understanding,
+                        and experiment with chess engines — all within the PyChess environment.
+                    </p>
+
+                    <p class="hero-author">
+                        Built independently by <strong>Raj0793 (Raj46)</strong>,
+                        with AI-assisted development.
+                    </p>
+
+
+                    <div class="hero-actions">
+
+                        <a href="#get-started" class="btn btn-primary">
+                            Get Started →
+                        </a>
+
+                        <a href="https://github.com/RAJ0793/PyChess"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-secondary">
+                            GitHub Repository ↗
+                        </a>
+
+                    </div>
+
+
+                    <div class="meta-strip">
+
+                        <div class="meta-item">
+                            <span class="meta-label">Language</span>
+                            <span class="meta-value">Python</span>
+                        </div>
+
+                        <div class="meta-item">
+                            <span class="meta-label">Category</span>
+                            <span class="meta-value">Open-source offline chess game</span>
+                        </div>
+
+                        <div class="meta-item">
+                            <span class="meta-label">Developer</span>
+                            <span class="meta-value">Raj0793 / Raj46</span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- OVERVIEW -->
+
+                <section id="overview" class="doc-section">
+
+                    <h2>Overview</h2>
+
+                    <h3>What is PyChess?</h3>
+
+                    <p>
+                        PyChess is an open-source, Python-based interactive chess
+                        game developed by Raj0793, also known as Raj46.
+                    </p>
+
+                    <p>
+                        It is designed to provide users with an offline chess-playing
+                        experience, accompanied by features such as an Analyzer,
+                        Coach, and a beginner-friendly user interface.
+                    </p>
+
+                    <p>
+                        Its primary goal is to provide an accessible environment
+                        where users can start learning chess, practice their skills,
+                        analyze positions, and progressively improve their understanding
+                        of the game.
+                    </p>
+
+                    <p>
+                        PyChess also aims to support chess engine experimentation
+                        and development. It is intended to support more than 50 chess
+                        engines, allowing users to explore different approaches to
+                        chess analysis and potentially develop their own chess engines.
+                    </p>
+
+                    <p>
+                        At present, PyChess is primarily represented as an offline
+                        chess game. Its broader chess intelligence ecosystem vision
+                        represents a potential direction for future development.
+                    </p>
+
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <tbody>
+
+                                <tr>
+                                    <th>Project</th>
+                                    <td>PyChess</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Developer</th>
+                                    <td>Raj0793 / Raj46</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Language</th>
+                                    <td>Python</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Availability</th>
+                                    <td>
+                                        <a href="https://github.com/RAJ0793/PyChess"
+                                           target="_blank"
+                                           rel="noopener noreferrer">
+                                            GitHub
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Category</th>
+                                    <td>Open-source offline chess game</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- WHY PYCHESS -->
+
+                <section id="why-pychess" class="doc-section">
+
+                    <h2>Why PyChess?</h2>
+
+                    <p>PyChess is developed for two primary audiences:</p>
+
+
+                    <div class="two-col-grid">
+
+                        <div class="audience-card">
+
+                            <h3>For Chess Players</h3>
+
+                            <ul>
+                                <li>Play chess offline.</li>
+                                <li>Explore chess analysis.</li>
+                                <li>Learn through the available Coach functionality.</li>
+                                <li>Use a beginner-friendly interface.</li>
+                                <li>Experiment with supported chess engines.</li>
+                            </ul>
+
+                        </div>
+
+
+                        <div class="audience-card">
+
+                            <h3>For Developers</h3>
+
+                            <ul>
+                                <li>Explore a Python-based chess project.</li>
+                                <li>Experiment with compatible chess engines.</li>
+                                <li>Investigate chess-related development.</li>
+                                <li>Explore the possibility of building independent chess engines.</li>
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+
+                    <p>
+                        PyChess aims to bring chess playing and chess development
+                        into one accessible environment.
+                    </p>
+
+                </section>
+
+
+                <!-- INSTALLATION -->
+
+                <section id="get-started" class="doc-section">
+
+                    <h2>Get Started</h2>
+
+                    <h3>Before You Begin</h3>
+
+                    <p>
+                        PyChess provides an included Python virtual environment
+                        in its distribution.
+                    </p>
+
+                    <p>
+                        Users are encouraged to use the supplied environment
+                        for PyChess-related testing and experimentation rather
+                        than modifying their system Python installation.
+                    </p>
+
+                    <p>
+                        The recommended distribution and installation files
+                        are available through the project's
+                        <a href="https://github.com/RAJ0793/PyChess/releases"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            GitHub Releases
+                        </a>.
+                    </p>
+
+
+                    <h3 id="windows-exe">Option 1 — Windows Executable</h3>
+
+                    <p>
+                        A Windows executable is available through GitHub Releases.
+                    </p>
+
+                    <ol>
+                        <li>Open the PyChess GitHub repository.</li>
+                        <li>Navigate to the Releases section.</li>
+                        <li>Download the available Windows executable distribution.</li>
+                        <li>Follow the installation instructions.</li>
+                        <li>If Python installation is required, follow the installer instructions.</li>
+                        <li>When prompted, select the option to add Python to PATH if the installer requires it.</li>
+                        <li>Complete the installation and launch PyChess.</li>
+                    </ol>
+
+
+                    <h3 id="python-package">Option 2 — Python Package Installation</h3>
+
+                    <p>
+                        Install the full PyChess dependencies and CLI using:
+                    </p>
+
+
+                    <div class="code-block">
+
+                        <div class="code-header">
+                            <span>Terminal</span>
+                            <button class="copy-btn" type="button" aria-label="Copy code">
+                                Copy
+                            </button>
+                        </div>
+
+                        <pre><code>pip install "pychess[full]"</code></pre>
+
+                    </div>
+
+
+                    <p>
+                        If the package cannot be obtained through the package
+                        index or installation fails, use the appropriate wheel
+                        (<code>.whl</code>) file provided by the project:
+                    </p>
+
+
+                    <div class="code-block">
+
+                        <div class="code-header">
+                            <span>Terminal</span>
+                            <button class="copy-btn" type="button" aria-label="Copy code">
+                                Copy
+                            </button>
+                        </div>
+
+                        <pre><code>pip install &lt;wheel-file.whl&gt;</code></pre>
+
+                    </div>
+
+
+                    <p>
+                        Use the actual wheel filename from the project's
+                        release distribution.
+                    </p>
+
+
+                    <div id="recommended-env" class="callout">
+
+                        <div class="callout-title">
+                            Recommended Environment
+                        </div>
+
+                        <p>
+                            PyChess includes a Python virtual environment in its
+                            distribution. Use that environment for PyChess-specific
+                            development and testing whenever it is available.
+                            Avoid unnecessarily changing the bundled environment
+                            or installing unrelated packages into it.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- FEATURES -->
+
+                <section id="features" class="doc-section">
+
+                    <h2>Features</h2>
+
+                    <div class="card-grid">
+
+                        <div class="feature-card">
+
+                            <div class="card-header">
+                                <span class="card-icon" aria-hidden="true">♟</span>
+                                <h3>Offline Chess</h3>
+                            </div>
+
+                            <p>
+                                Play chess without depending on a continuous
+                                internet connection.
+                            </p>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div class="card-header">
+                                <span class="card-icon" aria-hidden="true">📊</span>
+                                <h3>Analyzer</h3>
+                            </div>
+
+                            <p>
+                                Explore chess positions and examine analytical information.
+                            </p>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div class="card-header">
+                                <span class="card-icon" aria-hidden="true">🎓</span>
+                                <h3>Coach</h3>
+                            </div>
+
+                            <p>
+                                Use the available coaching functionality
+                                to support chess learning.
+                            </p>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div class="card-header">
+                                <span class="card-icon" aria-hidden="true">✨</span>
+                                <h3>Beginner-Friendly Interface</h3>
+                            </div>
+
+                            <p>
+                                An interface intended to make chess accessible
+                                to new players.
+                            </p>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div class="card-header">
+                                <span class="card-icon" aria-hidden="true">⚙️</span>
+                                <h3>Chess Engine Support</h3>
+                            </div>
+
+                            <p>
+                                Explore compatible chess engines for chess
+                                analysis and experimentation.
+                            </p>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div class="card-header">
+                                <span class="card-icon" aria-hidden="true">🛠️</span>
+                                <h3>Developer Possibilities</h3>
+                            </div>
+
+                            <p>
+                                Use the project as a starting point for exploring
+                                Python-based chess development.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- CREATOR -->
+
+                <section id="creator" class="doc-section">
+
+                    <h2>Who Created PyChess?</h2>
+
+                    <p>
+                        PyChess is an independently developed GitHub project created by:
+                    </p>
+
+
+                    <div class="identity-grid">
+
+                        <div class="identity-card">
+                            <strong>Raj0793</strong>
+                            <span>GitHub developer identity</span>
+                        </div>
+
+                        <div class="identity-card">
+                            <strong>Raj46</strong>
+                            <span>Minecraft / gaming identity</span>
+                        </div>
+
+                    </div>
+
+
+                    <p>Both identities belong to the same solo developer.</p>
+
+                    <p>
+                        The project has been developed independently
+                        with assistance from AI tools.
+                    </p>
+
+                </section>
+
+
+                <!-- FAQ -->
+
+                <section id="faq" class="doc-section">
+
+                    <h2>Frequently Asked Questions</h2>
+
+
+                    <details class="faq-item" open>
+
+                        <summary>Is PyChess free?</summary>
+
+                        <p>
+                            Yes. PyChess is presented as an open-source GitHub
+                            project and is available without a purchase requirement.
+                            Refer to the project's actual license for the applicable
+                            permissions and conditions.
+                        </p>
+
+                    </details>
+
+
+                    <details class="faq-item">
+
+                        <summary>Can I distribute PyChess?</summary>
+
+                        <p>
+                            Distribution may be permitted, subject to the project's
+                            applicable open-source license. You must provide the
+                            required attribution to the original creator,
+                            Raj0793 / Raj46, and comply with the license terms.
+                        </p>
+
+                    </details>
+
+
+                    <details class="faq-item">
+
+                        <summary>Can I build something using PyChess?</summary>
+
+                        <p>
+                            Yes, subject to the applicable license and the rights
+                            associated with individual project assets and dependencies.
+                            Please preserve the original creator attribution and
+                            provide the required credits for third-party assets
+                            to their respective owners.
+                        </p>
+
+                    </details>
+
+
+                    <details class="faq-item">
+
+                        <summary>Who is the original creator?</summary>
+
+                        <p>
+                            The original creator is Raj0793, also known as Raj46.
+                        </p>
+
+                    </details>
+
+
+                    <details class="faq-item">
+
+                        <summary>Does PyChess require an internet connection?</summary>
+
+                        <p>
+                            PyChess is designed to provide an offline chess-playing
+                            experience. Some installation, download, or external
+                            services may require an internet connection.
+                        </p>
+
+                    </details>
+
+
+                    <details class="faq-item">
+
+                        <summary>Can I create my own chess engine?</summary>
+
+                        <p>
+                            PyChess is intended to provide an environment for
+                            chess engine experimentation and development.
+                            The exact integration and development capabilities
+                            depend on the available interfaces and implementation.
+                        </p>
+
+                    </details>
+
+                </section>
+
+
+                <!-- FEEDBACK -->
+
+                <section id="feedback" class="doc-section">
+
+                    <h2>Feedback and Support</h2>
+
+                    <p>
+                        PyChess is independently developed and may contain
+                        bugs or unexpected behavior.
+                    </p>
+
+                    <p>If you encounter an issue:</p>
+
+                    <ol>
+                        <li>Reproduce the problem if possible.</li>
+                        <li>Record the error message or unexpected behavior.</li>
+                        <li>Visit the project's <a href="https://github.com/RAJ0793/PyChess" target="_blank" rel="noopener noreferrer">GitHub repository</a>.</li>
+                        <li>Submit feedback or a bug report with relevant details.</li>
+                    </ol>
+
+                    <p>Your feedback can help improve the project.</p>
+
+                </section>
+
+
+                <!-- CREDITS -->
+
+                <section id="credits" class="doc-section">
+
+                    <h2>Credits and Licensing</h2>
+
+                    <p>PyChess is an open-source project.</p>
+
+                    <p>
+                        The original creator is <strong>Raj0793 / Raj46</strong>.
+                    </p>
+
+                    <p>
+                        Third-party libraries, engines, assets, and other externally
+                        sourced components remain subject to their respective
+                        licenses and ownership terms.
+                    </p>
+
+
+                    <div class="callout callout-warning">
+
+                        <div class="callout-title">
+                            License Notice
+                        </div>
+
+                        <p>
+                            Always consult the project's <code>LICENSE</code>
+                            file before redistributing or modifying the project.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- PAGINATION -->
+
+                <nav class="doc-pagination" aria-label="Documentation pagination">
+
+                    <a href="#hero" class="pagination-card prev">
+
+                        <span class="pagination-label">← Top</span>
+                        <span class="pagination-title">PyChess Overview</span>
+
+                    </a>
+
+
+                    <a href="#get-started" class="pagination-card next">
+
+                        <span class="pagination-label">Jump to →</span>
+                        <span class="pagination-title">Get Started</span>
+
+                    </a>
+
+                </nav>
+
+            </article>
+
+
+            <!-- FOOTER -->
+
+            <footer class="doc-footer">
+
+                <span>PyChess — Created by Raj0793 / Raj46</span>
+                <span>Play. Learn. Analyze. Build.</span>
+
+            </footer>
+
+        </main>
+
+
+        <!-- RIGHT TABLE OF CONTENTS -->
+
+        <aside class="right-toc" aria-label="On this page">
+
+            <div class="toc-heading">On this page</div>
+
+            <nav id="pageToc" class="toc-nav">
+
+                <a href="#hero" class="toc-link active">PyChess</a>
+                <a href="#overview" class="toc-link">Overview</a>
+                <a href="#why-pychess" class="toc-link">Why PyChess?</a>
+                <a href="#get-started" class="toc-link">Get Started</a>
+                <a href="#features" class="toc-link">Features</a>
+                <a href="#creator" class="toc-link">Who Created PyChess?</a>
+                <a href="#faq" class="toc-link">FAQ</a>
+                <a href="#feedback" class="toc-link">Feedback & Support</a>
+                <a href="#credits" class="toc-link">Credits & Licensing</a>
+
+            </nav>
+
+            <a href="#hero" class="back-to-top">↑ Back to top</a>
+
+        </aside>
+
+    </div>
+
+
+    <!-- MOBILE DRAWER BACKDROP -->
+
+    <div class="drawer-backdrop"
+         id="mobileOverlay"
+         aria-hidden="true"></div>
+
+
+    <!-- EXTERNAL JAVASCRIPT -->
+
+    <script src="./backend/docs.js" defer></script>
+
+</body>
+</html>
