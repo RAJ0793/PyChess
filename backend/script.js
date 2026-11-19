@@ -1,626 +1,683 @@
 
-/* =========================================================
-   PyChess — Main JavaScript
-   Features:
-   1. Dark / Light theme
-   2. Mobile navigation
-   3. Scroll reveal animations
-   4. Stockfish / Leela ticker
-   5. Interactive chessboard with random legal AI moves
-   6. Architecture tree interaction
-   7. Interactive FAQ
-   8. Dynamic footer year
-   ========================================================= */
+/* ============================================
+   PyChess Landing Page
+   Main JavaScript Controller
+   ============================================ */
 
 "use strict";
 
-/* =========================================================
-   1. DOM HELPERS
-   ========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
 
-const $ = (selector, parent = document) =>
-    parent.querySelector(selector);
+    // =========================================
+    // ELEMENTS
+    // =========================================
 
-const $$ = (selector, parent = document) =>
-    [...parent.querySelectorAll(selector)];
+    const html = document.documentElement;
 
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
 
-/* =========================================================
-   2. THEME SYSTEM
-   ========================================================= */
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
 
-const themeToggle = $("#themeToggle");
+    const board = document.getElementById("chessBoard");
+    const moveStatus = document.getElementById("moveStatus");
 
-function applyTheme(theme) {
-    document.documentElement.dataset.theme = theme;
+    const currentYear = document.getElementById("currentYear");
 
-    if (themeToggle) {
-        themeToggle.setAttribute(
+    // =========================================
+    // THEME MANAGEMENT
+    // =========================================
+
+    const savedTheme = localStorage.getItem("pychess-theme");
+
+    if (savedTheme === "dark" || savedTheme === "light") {
+        html.dataset.theme = savedTheme;
+    }
+
+    function updateThemeIcon() {
+
+        if (!themeIcon) return;
+
+        themeIcon.textContent =
+            html.dataset.theme === "dark" ? "☀" : "☾";
+
+    }
+
+    themeToggle?.addEventListener("click", () => {
+
+        const nextTheme =
+            html.dataset.theme === "dark" ? "light" : "dark";
+
+        html.dataset.theme = nextTheme;
+
+        localStorage.setItem("pychess-theme", nextTheme);
+
+        updateThemeIcon();
+
+    });
+
+    updateThemeIcon();
+
+    // =========================================
+    // MOBILE NAVIGATION
+    // =========================================
+
+    function closeNavigation() {
+
+        navLinks?.classList.remove("open");
+
+        menuToggle?.setAttribute("aria-label", "Open navigation");
+
+        if (menuToggle) {
+            menuToggle.textContent = "☰";
+        }
+
+    }
+
+    menuToggle?.addEventListener("click", () => {
+
+        const isOpen = navLinks.classList.toggle("open");
+
+        menuToggle.setAttribute(
             "aria-label",
-            theme === "dark"
-                ? "Switch to light mode"
-                : "Switch to dark mode"
+            isOpen ? "Close navigation" : "Open navigation"
         );
 
-        themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
-    }
+        menuToggle.textContent = isOpen ? "✕" : "☰";
 
-    try {
-        localStorage.setItem("pychess-theme", theme);
-    } catch {
-        // Storage may be unavailable.
-    }
-}
+    });
 
-function initializeTheme() {
-    let savedTheme = null;
+    navLinks?.querySelectorAll("a").forEach(link => {
 
-    try {
-        savedTheme = localStorage.getItem("pychess-theme");
-    } catch {
-        // Ignore storage errors.
-    }
+        link.addEventListener("click", closeNavigation);
 
-    const preferredTheme =
-        savedTheme ||
-        (window.matchMedia("(prefers-color-scheme: light)").matches
-            ? "light"
-            : "dark");
+    });
 
-    applyTheme(preferredTheme);
-}
+    document.addEventListener("click", event => {
 
-initializeTheme();
-
-themeToggle?.addEventListener("click", () => {
-    const currentTheme =
-        document.documentElement.dataset.theme || "dark";
-
-    applyTheme(currentTheme === "dark" ? "light" : "dark");
-});
-
-
-/* =========================================================
-   3. MOBILE NAVIGATION
-   ========================================================= */
-
-const mobileToggle = $("#mobileToggle");
-const mobileNav = $("#mobileNav");
-
-function closeMobileNav() {
-    if (!mobileNav || !mobileToggle) return;
-
-    mobileNav.classList.remove("active");
-    mobileToggle.classList.remove("active");
-
-    mobileToggle.setAttribute("aria-expanded", "false");
-}
-
-mobileToggle?.addEventListener("click", () => {
-    if (!mobileNav) return;
-
-    const isOpen = mobileNav.classList.toggle("active");
-
-    mobileToggle.classList.toggle("active", isOpen);
-    mobileToggle.setAttribute("aria-expanded", String(isOpen));
-});
-
-$$("#mobileNav a").forEach(link => {
-    link.addEventListener("click", closeMobileNav);
-});
-
-document.addEventListener("click", event => {
-    if (
-        mobileNav &&
-        mobileToggle &&
-        !mobileNav.contains(event.target) &&
-        !mobileToggle.contains(event.target)
-    ) {
-        closeMobileNav();
-    }
-});
-
-
-/* =========================================================
-   4. SCROLL REVEAL ANIMATIONS
-   ========================================================= */
-
-const revealElements = $$(
-    ".reveal, .reveal-left, .reveal-right, .feature-card"
-);
-
-if ("IntersectionObserver" in window) {
-    const revealObserver = new IntersectionObserver(
-        entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("visible");
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        },
-        {
-            threshold: 0.12
+        if (
+            navLinks?.classList.contains("open") &&
+            !event.target.closest(".navbar")
+        ) {
+            closeNavigation();
         }
-    );
 
-    revealElements.forEach(element => {
-        revealObserver.observe(element);
     });
-} else {
-    revealElements.forEach(element => {
-        element.classList.add("visible");
+
+    window.addEventListener("resize", () => {
+
+        if (window.innerWidth > 760) {
+            closeNavigation();
+        }
+
     });
-}
 
+    // =========================================
+    // NAVIGATION ACTIVE STATE
+    // =========================================
 
-/* =========================================================
-   5. STOCKFISH / LEELA TICKER
-   ========================================================= */
+    const pageSections = [
+        ...document.querySelectorAll("main section[id]")
+    ];
 
-const ticker = $("#ticker");
+    const pageNavLinks = [
+        ...document.querySelectorAll(".nav-link[href^='#']")
+    ];
 
-if (ticker && "IntersectionObserver" in window) {
-    const tickerObserver = new IntersectionObserver(
-        entries => {
-            entries.forEach(entry => {
-                ticker.classList.toggle(
-                    "ticker-running",
-                    entry.isIntersecting
+    if ("IntersectionObserver" in window) {
+
+        const navigationObserver = new IntersectionObserver(entries => {
+
+            const visible = entries
+                .filter(entry => entry.isIntersecting)
+                .sort((a, b) =>
+                    b.intersectionRatio - a.intersectionRatio
                 );
+
+            if (!visible.length) return;
+
+            const currentId = visible[0].target.id;
+
+            pageNavLinks.forEach(link => {
+
+                const active =
+                    link.getAttribute("href") === `#${currentId}`;
+
+                link.classList.toggle("active", active);
+
             });
-        },
-        {
-            threshold: 0.1
+
+        }, {
+            rootMargin: "-20% 0px -65% 0px",
+            threshold: [0, 0.2, 0.5, 1]
+        });
+
+        pageSections.forEach(section => {
+            navigationObserver.observe(section);
+        });
+
+    }
+
+    // =========================================
+    // REVEAL ANIMATIONS
+    // =========================================
+
+    const revealElements = [
+        ...document.querySelectorAll(".reveal")
+    ];
+
+    if ("IntersectionObserver" in window) {
+
+        const revealObserver = new IntersectionObserver(entries => {
+
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.classList.add("visible");
+
+                    revealObserver.unobserve(entry.target);
+
+                }
+
+            });
+
+        }, {
+            threshold: 0.12
+        });
+
+        revealElements.forEach(element => {
+            revealObserver.observe(element);
+        });
+
+    } else {
+
+        revealElements.forEach(element => {
+            element.classList.add("visible");
+        });
+
+    }
+
+    // =========================================
+    // CHESSBOARD SIMULATION
+    // =========================================
+
+    const chessPieces = {
+
+        wK: "♔",
+        wQ: "♕",
+        wR: "♖",
+        wB: "♗",
+        wN: "♘",
+        wP: "♙",
+
+        bK: "♚",
+        bQ: "♛",
+        bR: "♜",
+        bB: "♝",
+        bN: "♞",
+        bP: "♟"
+
+    };
+
+    let chessGame = null;
+    let boardTimer = null;
+
+    let lastMove = null;
+    let moveNumber = 0;
+
+    const squareElements = new Map();
+
+    function createChessBoard() {
+
+        if (!board) return;
+
+        board.innerHTML = "";
+        squareElements.clear();
+
+        for (let row = 0; row < 8; row++) {
+
+            for (let col = 0; col < 8; col++) {
+
+                const square = document.createElement("div");
+
+                const file = "abcdefgh"[col];
+                const rank = 8 - row;
+
+                const squareName = file + rank;
+
+                square.className =
+                    `chess-square ${(row + col) % 2 === 0 ? "light" : "dark"}`;
+
+                square.dataset.square = squareName;
+
+                square.setAttribute("aria-hidden", "true");
+
+                squareElements.set(squareName, square);
+
+                board.appendChild(square);
+
+            }
+
         }
-    );
 
-    tickerObserver.observe(ticker);
-}
-
-
-/* =========================================================
-   6. CHESS GAME
-   Requires Chess.js 0.10.3:
-   https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js
-
-   This is a random-move opponent, NOT Stockfish or Leela.
-   ========================================================= */
-
-const chessBoard = $("#chessBoard");
-const moveStatus = $("#moveStatus");
-const newGameButton = $("#newGameBtn");
-
-const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
-
-const pieceSymbols = {
-    w: {
-        k: "♔",
-        q: "♕",
-        r: "♖",
-        b: "♗",
-        n: "♘",
-        p: "♙"
-    },
-    b: {
-        k: "♚",
-        q: "♛",
-        r: "♜",
-        b: "♝",
-        n: "♞",
-        p: "♟"
-    }
-};
-
-let chessGame = null;
-let selectedSquare = null;
-let legalTargets = [];
-let computerThinking = false;
-let computerTimer = null;
-
-function setChessStatus(message) {
-    if (moveStatus) {
-        moveStatus.textContent = message;
-    }
-}
-
-function getSquareName(row, column) {
-    return files[column] + (8 - row);
-}
-
-function initializeChessGame() {
-    if (!chessBoard) return;
-
-    if (typeof Chess !== "function") {
-        setChessStatus(
-            "Chess library unavailable. Check your internet connection."
-        );
-
-        return;
     }
 
-    chessGame = new Chess();
+    function renderChessBoard() {
 
-    selectedSquare = null;
-    legalTargets = [];
-    computerThinking = false;
+        if (!chessGame || !board) return;
 
-    clearTimeout(computerTimer);
+        const position = chessGame.board();
 
-    renderChessBoard();
-    setChessStatus("Your turn — White");
-}
+        squareElements.forEach(square => {
 
-function renderChessBoard() {
-    if (!chessBoard || !chessGame) return;
+            square.innerHTML = "";
 
-    chessBoard.innerHTML = "";
+            square.classList.remove("last-move", "check");
 
-    for (let row = 0; row < 8; row++) {
-        for (let column = 0; column < 8; column++) {
-            const squareName = getSquareName(row, column);
-            const square = document.createElement("button");
+        });
 
-            square.type = "button";
-            square.className =
-                `square ${(row + column) % 2 === 0 ? "light" : "dark"}`;
+        position.forEach((row, rowIndex) => {
 
-            square.dataset.square = squareName;
-            square.setAttribute("aria-label", squareName);
+            row.forEach((piece, colIndex) => {
 
-            const piece = chessGame.get(squareName);
+                if (!piece) return;
 
-            if (piece) {
+                const file = "abcdefgh"[colIndex];
+                const rank = 8 - rowIndex;
+
+                const squareName = file + rank;
+
+                const square = squareElements.get(squareName);
+
+                if (!square) return;
+
+                const key =
+                    (piece.color === "w" ? "w" : "b") + piece.type.toUpperCase();
+
                 const pieceElement = document.createElement("span");
 
                 pieceElement.className =
-                    `piece ${piece.color === "w" ? "white-piece" : "black-piece"}`;
+                    `chess-piece ${piece.color === "w" ? "white" : "black"}`;
 
-                pieceElement.textContent =
-                    pieceSymbols[piece.color][piece.type];
+                pieceElement.textContent = chessPieces[key];
 
                 square.appendChild(pieceElement);
-            }
 
-            if (selectedSquare === squareName) {
-                square.classList.add("selected");
-            }
-
-            if (legalTargets.includes(squareName)) {
-                square.classList.add("legal-target");
-            }
-
-            if (
-                chessGame.isCheck() &&
-                piece?.type === "k" &&
-                piece.color === chessGame.turn()
-            ) {
-                square.classList.add("in-check");
-            }
-
-            square.addEventListener("click", () => {
-                handleSquareClick(squareName);
             });
 
-            chessBoard.appendChild(square);
-        }
-    }
-}
+        });
 
-function handleSquareClick(squareName) {
-    if (!chessGame || computerThinking || chessGame.game_over()) {
-        return;
-    }
+        if (lastMove) {
 
-    // Player controls White.
-    if (chessGame.turn() !== "w") return;
+            const from = squareElements.get(lastMove.from);
+            const to = squareElements.get(lastMove.to);
 
-    const clickedPiece = chessGame.get(squareName);
+            from?.classList.add("last-move");
+            to?.classList.add("last-move");
 
-    if (!selectedSquare) {
-        if (clickedPiece && clickedPiece.color === "w") {
-            selectSquare(squareName);
         }
 
-        return;
-    }
+        if (chessGame.in_check()) {
 
-    // Selecting another friendly piece.
-    if (clickedPiece && clickedPiece.color === "w") {
-        selectSquare(squareName);
-        return;
-    }
+            const kingSquare = findKingSquare(
+                chessGame.board(),
+                chessGame.turn()
+            );
 
-    const move = chessGame.move({
-        from: selectedSquare,
-        to: squareName,
-        promotion: "q"
-    });
+            if (kingSquare) {
+                squareElements.get(kingSquare)?.classList.add("check");
+            }
 
-    if (move) {
-        selectedSquare = null;
-        legalTargets = [];
-
-        renderChessBoard();
-        updateChessStatus();
-
-        if (!chessGame.game_over()) {
-            scheduleComputerMove();
         }
-    } else {
-        selectedSquare = null;
-        legalTargets = [];
 
-        renderChessBoard();
-        setChessStatus("Illegal move — select a White piece.");
-    }
-}
+        updateMoveStatus();
 
-function selectSquare(squareName) {
-    selectedSquare = squareName;
-
-    const moves = chessGame.moves({
-        square: squareName,
-        verbose: true
-    });
-
-    legalTargets = moves.map(move => move.to);
-
-    renderChessBoard();
-}
-
-function scheduleComputerMove() {
-    computerThinking = true;
-    setChessStatus("Black is thinking...");
-
-    computerTimer = setTimeout(() => {
-        makeComputerMove();
-    }, 650);
-}
-
-function makeComputerMove() {
-    if (!chessGame || chessGame.game_over()) {
-        computerThinking = false;
-        return;
     }
 
-    const possibleMoves = chessGame.moves();
+    function findKingSquare(position, color) {
 
-    if (possibleMoves.length === 0) {
-        computerThinking = false;
-        updateChessStatus();
-        return;
-    }
+        for (let row = 0; row < 8; row++) {
 
-    const randomIndex = Math.floor(
-        Math.random() * possibleMoves.length
-    );
+            for (let col = 0; col < 8; col++) {
 
-    chessGame.move(possibleMoves[randomIndex]);
+                const piece = position[row][col];
 
-    computerThinking = false;
+                if (
+                    piece &&
+                    piece.type === "k" &&
+                    piece.color === color
+                ) {
 
-    renderChessBoard();
-    updateChessStatus();
-}
+                    return "abcdefgh"[col] + (8 - row);
 
-function updateChessStatus() {
-    if (!chessGame) return;
-
-    if (chessGame.in_checkmate()) {
-        const winner =
-            chessGame.turn() === "w" ? "Black" : "White";
-
-        setChessStatus(`Checkmate — ${winner} wins!`);
-        return;
-    }
-
-    if (chessGame.in_draw()) {
-        setChessStatus("Game drawn.");
-        return;
-    }
-
-    if (chessGame.in_check()) {
-        setChessStatus(
-            chessGame.turn() === "w"
-                ? "White is in check!"
-                : "Black is in check!"
-        );
-
-        return;
-    }
-
-    setChessStatus(
-        chessGame.turn() === "w"
-            ? "Your turn — White"
-            : "Black's turn"
-    );
-}
-
-newGameButton?.addEventListener("click", initializeChessGame);
-
-initializeChessGame();
-
-
-/* =========================================================
-   7. ARCHITECTURE TREE
-   ========================================================= */
-
-const architectureNodes = $$(
-    "[data-architecture-node]"
-);
-
-const architectureDetail = $("#architectureDetail");
-
-function activateArchitectureNode(node) {
-    architectureNodes.forEach(item => {
-        item.classList.toggle("active", item === node);
-        item.setAttribute(
-            "aria-pressed",
-            String(item === node)
-        );
-    });
-
-    if (!architectureDetail) return;
-
-    const title = node.dataset.title || "PyChess Architecture";
-    const description =
-        node.dataset.description || "Explore the PyChess system.";
-
-    architectureDetail.innerHTML = "";
-
-    const heading = document.createElement("h3");
-    heading.textContent = title;
-
-    const paragraph = document.createElement("p");
-    paragraph.textContent = description;
-
-    architectureDetail.append(heading, paragraph);
-}
-
-architectureNodes.forEach(node => {
-    node.addEventListener("click", () => {
-        activateArchitectureNode(node);
-    });
-});
-
-if (architectureNodes.length > 0) {
-    activateArchitectureNode(architectureNodes[0]);
-}
-
-
-/* =========================================================
-   8. ARCHITECTURE SCROLL TRACKING
-   ========================================================= */
-
-const architectureSection =
-    $("#architecture") || $("#architectureTree");
-
-if (
-    architectureSection &&
-    architectureNodes.length > 0 &&
-    "IntersectionObserver" in window
-) {
-    const architectureObserver = new IntersectionObserver(
-        entries => {
-            entries.forEach(entry => {
-                if (!entry.isIntersecting) return;
-
-                const visibleNode = architectureNodes.find(
-                    node => node.getBoundingClientRect().top > 0
-                );
-
-                if (visibleNode) {
-                    activateArchitectureNode(visibleNode);
                 }
-            });
-        },
-        {
-            threshold: 0.5
+
+            }
+
         }
-    );
+
+        return null;
+
+    }
+
+    function updateMoveStatus() {
+
+        if (!moveStatus || !chessGame) return;
+
+        if (chessGame.in_checkmate()) {
+
+            moveStatus.textContent = "CHECKMATE";
+
+        } else if (chessGame.in_draw()) {
+
+            moveStatus.textContent = "DRAW";
+
+        } else if (chessGame.in_check()) {
+
+            moveStatus.textContent =
+                `${chessGame.turn() === "w" ? "WHITE" : "BLACK"} IN CHECK`;
+
+        } else {
+
+            moveStatus.textContent =
+                `MOVE ${Math.max(1, Math.ceil(moveNumber / 2))} · ` +
+                `${chessGame.turn() === "w" ? "WHITE" : "BLACK"} TO MOVE`;
+
+        }
+
+    }
+
+    function playAutomaticMove() {
+
+        if (!chessGame) return;
+
+        if (chessGame.game_over()) {
+
+            chessGame.reset();
+
+            lastMove = null;
+            moveNumber = 0;
+
+            renderChessBoard();
+
+            return;
+
+        }
+
+        const moves = chessGame.moves({
+            verbose: true
+        });
+
+        if (!moves.length) return;
+
+        // Choose a random legal move for the visual demonstration.
+        const selectedMove =
+            moves[Math.floor(Math.random() * moves.length)];
+
+        const result = chessGame.move(selectedMove);
+
+        if (!result) return;
+
+        lastMove = result;
+        moveNumber++;
+
+        renderChessBoard();
+
+    }
+
+    function initializeChessSimulation() {
+
+        if (!board) return;
+
+        if (typeof Chess !== "function") {
+
+            if (moveStatus) {
+                moveStatus.textContent = "CHESS LIBRARY UNAVAILABLE";
+            }
+
+            console.error(
+                "PyChess: chess.js was not loaded. Check the CDN script."
+            );
+
+            return;
+
+        }
+
+        chessGame = new Chess();
+
+        createChessBoard();
+        renderChessBoard();
+
+        if (boardTimer) {
+            clearInterval(boardTimer);
+        }
+
+        // Automatic visual simulation, not an AI engine.
+        boardTimer = setInterval(playAutomaticMove, 1700);
+
+    }
+
+    initializeChessSimulation();
+
+    // =========================================
+    // ENGINE TICKER
+    // =========================================
+
+    const tickerTrack = document.getElementById("tickerTrack");
+
+    if (tickerTrack && !tickerTrack.dataset.cloned) {
+
+        const originalItems = [...tickerTrack.children];
+
+        originalItems.forEach(item => {
+
+            const clone = item.cloneNode(true);
+
+            clone.setAttribute("aria-hidden", "true");
+
+            tickerTrack.appendChild(clone);
+
+        });
+
+        tickerTrack.dataset.cloned = "true";
+
+    }
+
+    // =========================================
+    // ARCHITECTURE EXPLORER
+    // =========================================
+
+    const architectureData = {
+
+        engines: {
+
+            title: "Engine ecosystem",
+
+            description:
+                "Explore the integration of compatible chess engines, " +
+                "their communication interfaces, and specialized analysis tasks.",
+
+            counter: "01 / 04"
+
+        },
+
+        analysis: {
+
+            title: "Strategic analysis",
+
+            description:
+                "Study chess positions, evaluate candidate moves, " +
+                "and explore tactical and positional decision-making.",
+
+            counter: "02 / 04"
+
+        },
+
+        learning: {
+
+            title: "Learning and research",
+
+            description:
+                "Explore chess datasets, self-play experiments, " +
+                "neural evaluation, and comparative engine research.",
+
+            counter: "03 / 04"
+
+        },
+
+        orchestration: {
+
+            title: "Engine orchestration",
+
+            description:
+                "Explore the concept of coordinating multiple engines " +
+                "through common interfaces and task-specific workflows.",
+
+            counter: "04 / 04"
+
+        }
+
+    };
+
+    const architectureNodes = [
+        ...document.querySelectorAll(".tree-node")
+    ];
+
+    const architectureTitle =
+        document.getElementById("architectureTitle");
+
+    const architectureDescription =
+        document.getElementById("architectureDescription");
+
+    const architectureProgress =
+        document.getElementById("architectureProgress");
+
+    const architectureCounter =
+        document.getElementById("architectureCounter");
+
+    let currentArchitecture = 0;
+
+    const architectureKeys = Object.keys(architectureData);
+
+    function selectArchitecture(key) {
+
+        const data = architectureData[key];
+
+        if (!data) return;
+
+        currentArchitecture = architectureKeys.indexOf(key);
+
+        architectureTitle.textContent = data.title;
+
+        architectureDescription.textContent = data.description;
+
+        architectureCounter.textContent = data.counter;
+
+        architectureProgress.style.width =
+            `${((currentArchitecture + 1) / architectureKeys.length) * 100}%`;
+
+        architectureNodes.forEach(node => {
+
+            const active = node.dataset.feature === key;
+
+            node.classList.toggle("active", active);
+
+            node.setAttribute(
+                "aria-pressed",
+                String(active)
+            );
+
+        });
+
+    }
 
     architectureNodes.forEach(node => {
-        architectureObserver.observe(node);
-    });
-}
 
+        node.setAttribute("role", "button");
+        node.setAttribute("tabindex", "0");
 
-/* =========================================================
-   9. INTERACTIVE FAQ
-   ========================================================= */
+        node.addEventListener("click", () => {
 
-const faqItems = $$(".faq-item");
+            selectArchitecture(node.dataset.feature);
 
-faqItems.forEach(item => {
-    const question =
-        $(".faq-question", item) ||
-        $("button", item);
-
-    const answer =
-        $(".faq-answer", item) ||
-        $(".faq-content", item);
-
-    if (!question || !answer) return;
-
-    question.setAttribute("aria-expanded", "false");
-
-    answer.hidden = true;
-
-    question.addEventListener("click", () => {
-        const isOpen =
-            question.getAttribute("aria-expanded") === "true";
-
-        // Close other FAQ entries.
-        faqItems.forEach(otherItem => {
-            const otherQuestion =
-                $(".faq-question", otherItem) ||
-                $("button", otherItem);
-
-            const otherAnswer =
-                $(".faq-answer", otherItem) ||
-                $(".faq-content", otherItem);
-
-            if (!otherQuestion || !otherAnswer) return;
-
-            otherQuestion.setAttribute("aria-expanded", "false");
-            otherItem.classList.remove("active");
-            otherAnswer.hidden = true;
         });
 
-        if (!isOpen) {
-            question.setAttribute("aria-expanded", "true");
-            item.classList.add("active");
-            answer.hidden = false;
+        node.addEventListener("keydown", event => {
+
+            if (event.key === "Enter" || event.key === " ") {
+
+                event.preventDefault();
+
+                selectArchitecture(node.dataset.feature);
+
+            }
+
+        });
+
+    });
+
+    selectArchitecture("engines");
+
+    // =========================================
+    // FAQ ACCORDION
+    // =========================================
+
+    const faqItems = [
+        ...document.querySelectorAll(".faq-item")
+    ];
+
+    faqItems.forEach(item => {
+
+        const button = item.querySelector(".faq-question");
+
+        button?.addEventListener("click", () => {
+
+            const isOpen = item.classList.contains("open");
+
+            // Keep one FAQ open at a time.
+            faqItems.forEach(otherItem => {
+
+                otherItem.classList.remove("open");
+
+                otherItem.querySelector(".faq-question")
+                    ?.setAttribute("aria-expanded", "false");
+
+            });
+
+            if (!isOpen) {
+
+                item.classList.add("open");
+
+                button.setAttribute("aria-expanded", "true");
+
+            }
+
+        });
+
+    });
+
+    // =========================================
+    // FOOTER YEAR
+    // =========================================
+
+    if (currentYear) {
+
+        currentYear.textContent = new Date().getFullYear();
+
+    }
+
+    // =========================================
+    // CLEANUP
+    // =========================================
+
+    window.addEventListener("pagehide", () => {
+
+        if (boardTimer) {
+            clearInterval(boardTimer);
         }
+
     });
+
 });
-
-
-/* =========================================================
-   10. FOOTER YEAR
-   ========================================================= */
-
-const footerYear = $("#footerYear");
-
-if (footerYear) {
-    footerYear.textContent = new Date().getFullYear();
-}
-
-
-/* =========================================================
-   11. SMOOTH SCROLL
-   ========================================================= */
-
-$$('a[href^="#"]').forEach(link => {
-    link.addEventListener("click", event => {
-        const targetId = link.getAttribute("href");
-
-        if (!targetId || targetId === "#") return;
-
-        const target = $(targetId);
-
-        if (!target) return;
-
-        event.preventDefault();
-
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    });
-});
-
-
-/* =========================================================
-   12. INITIALIZATION COMPLETE
-   ========================================================= */
-
-console.info(
-    "%cPyChess",
-    "font-size:24px;font-weight:bold;color:#00e5ff;"
-);
-
-console.info(
-    "PyChess frontend initialized successfully."
-);
