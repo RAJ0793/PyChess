@@ -1,16 +1,168 @@
+```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; url=./assets/docs/pages/initial/main.html">
+    <meta name="theme-color" content="#101114">
+
     <title>PyChess</title>
+
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #101114;
+            --surface: #191b20;
+            --text: #f5f5f5;
+            --muted: #a0a4ad;
+            --accent: #d6b36a;
+            --border: #30333b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            padding: 22px 7%;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        main {
+            min-height: 75vh;
+            display: grid;
+            place-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .hero {
+            max-width: 750px;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 8vw, 76px);
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .launch {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 30px;
+            border-radius: 7px;
+            background: var(--accent);
+            color: #171717;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+
+        #status {
+            margin-top: 15px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+    </style>
 </head>
+
 <body>
-    <p>Redirecting to PyChess...</p>
+
+    <header>
+        <div class="logo">♟ PyChess</div>
+        <div>Chess Intelligence Ecosystem</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>PyChess</h1>
+
+            <p>
+                An intelligent, modular chess ecosystem
+                built for engine integration, AI research,
+                chess analysis and self-play.
+            </p>
+
+            <a class="launch" href="./main.html">
+                Launch PyChess
+            </a>
+
+            <div id="status">
+                Checking application availability...
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        BUILT SMALL. THINKS BIG.
+        <br><br>
+        Developed by Raj0793
+    </footer>
 
     <script>
-        window.location.replace("./assets/docs/pages/initial/main.html");
+        (() => {
+            "use strict";
+
+            const MAIN_PAGE = "./main.html";
+            const status = document.getElementById("status");
+
+            async function initialize() {
+                try {
+                    const response = await fetch(MAIN_PAGE, {
+                        method: "HEAD",
+                        cache: "no-store"
+                    });
+
+                    if (response.ok) {
+                        status.textContent =
+                            "Main application found. Redirecting...";
+
+                        window.location.replace(MAIN_PAGE);
+                        return;
+                    }
+
+                    status.textContent =
+                        "Main application unavailable. Showing home page.";
+
+                } catch (error) {
+                    status.textContent =
+                        "Main application could not be reached. Showing home page.";
+                }
+            }
+
+            initialize();
+        })();
     </script>
+
 </body>
 </html>
+```
