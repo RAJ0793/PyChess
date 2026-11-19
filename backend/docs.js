@@ -1,296 +1,401 @@
+
+/* =========================================
+   PyChess Documentation — JavaScript
+   ========================================= */
+
+"use strict";
+
 document.addEventListener("DOMContentLoaded", () => {
+
+    // =====================================
+    // ELEMENTS
+    // =====================================
+
     const html = document.documentElement;
-    const body = document.body;
 
     const themeToggle = document.getElementById("themeToggle");
     const mobileMenuToggle = document.getElementById("mobileMenuToggle");
-    const mobileOverlay = document.getElementById("mobileOverlay");
-    const sidebar = document.getElementById("leftSidebar") || document.getElementById("sidebar");
+
+    const sidebar = document.getElementById("leftSidebar");
+    const overlay = document.getElementById("mobileOverlay");
+
     const searchInput = document.getElementById("docSearch");
     const searchResults = document.getElementById("searchResults");
 
-    // ---------------------------------------
-    // THEME MANAGEMENT
-    // ---------------------------------------
+    const navLinks = [...document.querySelectorAll(".nav-link")];
+    const tocLinks = [...document.querySelectorAll(".toc-link")];
 
-    const savedTheme = localStorage.getItem("pychess-doc-theme");
+    const sections = [...document.querySelectorAll(".doc-section")];
+
+    // =====================================
+    // THEME MANAGEMENT
+    // =====================================
+
+    const savedTheme = localStorage.getItem("pychess-docs-theme");
 
     if (savedTheme === "light" || savedTheme === "dark") {
         html.dataset.theme = savedTheme;
     }
 
-    function updateThemeIcon() {
-        if (!themeToggle) return;
-    }
+    function updateThemeButton() {
 
-    updateThemeIcon();
+        const theme = html.dataset.theme;
+
+        themeToggle?.setAttribute(
+            "aria-label",
+            theme === "dark"
+                ? "Switch to light theme"
+                : "Switch to dark theme"
+        );
+
+    }
 
     themeToggle?.addEventListener("click", () => {
-        const nextTheme = html.dataset.theme === "dark" ? "light" : "dark";
+
+        const currentTheme = html.dataset.theme;
+
+        const nextTheme =
+            currentTheme === "dark" ? "light" : "dark";
 
         html.dataset.theme = nextTheme;
-        localStorage.setItem("pychess-doc-theme", nextTheme);
-        updateThemeIcon();
+
+        localStorage.setItem(
+            "pychess-docs-theme",
+            nextTheme
+        );
+
+        updateThemeButton();
+
     });
 
-    // ---------------------------------------
-    // MOBILE SIDEBAR
-    // ---------------------------------------
+    updateThemeButton();
 
-    function openMenu() {
-        body.classList.add("menu-open");
+    // =====================================
+    // MOBILE SIDEBAR
+    // =====================================
+
+    function openSidebar() {
+
+        sidebar?.classList.add("open");
+        overlay?.classList.add("visible");
+
         mobileMenuToggle?.setAttribute("aria-expanded", "true");
+        overlay?.setAttribute("aria-hidden", "false");
+
+        document.body.style.overflow = "hidden";
+
     }
 
-    function closeMenu() {
-        body.classList.remove("menu-open");
+    function closeSidebar() {
+
+        sidebar?.classList.remove("open");
+        overlay?.classList.remove("visible");
+
         mobileMenuToggle?.setAttribute("aria-expanded", "false");
+        overlay?.setAttribute("aria-hidden", "true");
+
+        document.body.style.overflow = "";
+
     }
 
     mobileMenuToggle?.addEventListener("click", () => {
-        body.classList.contains("menu-open") ? closeMenu() : openMenu();
+
+        const isOpen = sidebar.classList.contains("open");
+
+        isOpen ? closeSidebar() : openSidebar();
+
     });
 
-    mobileOverlay?.addEventListener("click", closeMenu);
+    overlay?.addEventListener("click", closeSidebar);
 
-    sidebar?.querySelectorAll("a").forEach(link => {
-        link.addEventListener("click", closeMenu);
+    navLinks.forEach(link => {
+
+        link.addEventListener("click", () => {
+
+            if (window.innerWidth <= 760) {
+                closeSidebar();
+            }
+
+        });
+
     });
+
+    window.addEventListener("resize", () => {
+
+        if (window.innerWidth > 760) {
+            closeSidebar();
+        }
+
+    });
+
+    // =====================================
+    // COLLAPSIBLE SIDEBAR CATEGORIES
+    // =====================================
+
+    document.querySelectorAll(".category-toggle").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const expanded =
+                button.getAttribute("aria-expanded") === "true";
+
+            const list = button.nextElementSibling;
+
+            button.setAttribute(
+                "aria-expanded",
+                String(!expanded)
+            );
+
+            list?.classList.toggle("collapsed", expanded);
+
+        });
+
+    });
+
+    // =====================================
+    // ACTIVE SECTION TRACKING
+    // =====================================
+
+    function setActiveSection(id) {
+
+        [...navLinks, ...tocLinks].forEach(link => {
+
+            const active = link.getAttribute("href") === `#${id}`;
+
+            link.classList.toggle("active", active);
+
+        });
+
+    }
+
+    if ("IntersectionObserver" in window) {
+
+        const observer = new IntersectionObserver(entries => {
+
+            const visible = entries
+                .filter(entry => entry.isIntersecting)
+                .sort((a, b) =>
+                    b.intersectionRatio - a.intersectionRatio
+                );
+
+            if (visible.length > 0) {
+                setActiveSection(visible[0].target.id);
+            }
+
+        }, {
+            rootMargin: "-15% 0px -65% 0px",
+            threshold: [0, 0.2, 0.5, 1]
+        });
+
+        sections.forEach(section => observer.observe(section));
+
+    }
+
+    // =====================================
+    // DOCUMENTATION SEARCH
+    // =====================================
+
+    const searchableSections = sections.map(section => {
+
+        const heading = section.querySelector("h1, h2");
+
+        return {
+            id: section.id,
+            title: heading?.textContent.trim() || section.id,
+            text: section.textContent.toLowerCase()
+        };
+
+    });
+
+    function performSearch(query) {
+
+        searchResults.innerHTML = "";
+
+        const normalizedQuery = query.trim().toLowerCase();
+
+        if (!normalizedQuery) {
+            searchResults.classList.remove("visible");
+            return;
+        }
+
+        const results = searchableSections.filter(section => {
+
+            return (
+                section.title.toLowerCase().includes(normalizedQuery) ||
+                section.text.includes(normalizedQuery)
+            );
+
+        });
+
+        if (results.length === 0) {
+
+            searchResults.innerHTML =
+                '<div class="search-empty">No documentation found.</div>';
+
+        } else {
+
+            results.slice(0, 8).forEach(section => {
+
+                const link = document.createElement("a");
+
+                link.className = "search-result";
+                link.href = `#${section.id}`;
+
+                const title = document.createElement("strong");
+                title.textContent = section.title;
+
+                const description = document.createElement("small");
+                description.textContent = "PyChess Documentation";
+
+                link.append(title, description);
+
+                link.addEventListener("click", () => {
+
+                    searchResults.classList.remove("visible");
+                    searchInput.value = "";
+
+                });
+
+                searchResults.appendChild(link);
+
+            });
+
+        }
+
+        searchResults.classList.add("visible");
+
+    }
+
+    searchInput?.addEventListener("input", event => {
+
+        performSearch(event.target.value);
+
+    });
+
+    searchInput?.addEventListener("focus", () => {
+
+        if (searchInput.value.trim()) {
+            performSearch(searchInput.value);
+        }
+
+    });
+
+    document.addEventListener("click", event => {
+
+        if (!event.target.closest(".search-wrapper")) {
+            searchResults?.classList.remove("visible");
+        }
+
+    });
+
+    // =====================================
+    // KEYBOARD SHORTCUTS
+    // =====================================
 
     document.addEventListener("keydown", event => {
-        if (event.key === "Escape") {
-            closeMenu();
-            searchResults?.removeAttribute("open");
-            searchResults?.setAttribute("hidden", "true");
-            searchResults?.classList.remove("show");
+
+        const isMac = navigator.platform
+            .toUpperCase()
+            .includes("MAC");
+
+        const modifier = isMac ? event.metaKey : event.ctrlKey;
+
+        if (modifier && event.key.toLowerCase() === "k") {
+
+            event.preventDefault();
+
+            searchInput?.focus();
+            searchInput?.select();
+
         }
-    });
 
-    // ---------------------------------------
-    // COLLAPSIBLE SIDEBAR GROUPS
-    // ---------------------------------------
+        if (event.key === "Escape") {
 
-    document.querySelectorAll(".category-toggle, .sidebar-group-toggle").forEach(button => {
-        button.addEventListener("click", () => {
-            const groupList = button.nextElementSibling;
-            const expanded = button.getAttribute("aria-expanded") === "true";
+            closeSidebar();
 
-            button.setAttribute("aria-expanded", String(!expanded));
-            if (groupList) {
-                groupList.classList.toggle("collapsed", expanded);
+            searchResults?.classList.remove("visible");
+
+            if (document.activeElement === searchInput) {
+                searchInput.blur();
             }
 
-            const chevron = button.querySelector(".chevron");
-            if (chevron) {
-                chevron.style.transform = expanded ? "rotate(-90deg)" : "rotate(0deg)";
-            }
-        });
+        }
+
     });
 
-    // ---------------------------------------
+    // =====================================
     // COPY CODE BUTTONS
-    // ---------------------------------------
+    // =====================================
 
-    document.querySelectorAll(".copy-btn, .copy-button").forEach(button => {
+    document.querySelectorAll(".copy-btn").forEach(button => {
+
         button.addEventListener("click", async () => {
+
             const codeBlock = button.closest(".code-block");
-            const code = codeBlock?.querySelector("code");
+            const code = codeBlock?.querySelector("pre code");
 
             if (!code) return;
 
             const originalText = button.textContent;
 
             try {
-                await navigator.clipboard.writeText(code.innerText);
+
+                await navigator.clipboard.writeText(code.textContent);
+
                 button.textContent = "Copied!";
-            } catch {
-                const range = document.createRange();
-                range.selectNodeContents(code);
 
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
+            } catch (error) {
 
-                button.textContent = "Select & Copy";
+                // Fallback for browsers without Clipboard API access.
+
+                const textarea = document.createElement("textarea");
+
+                textarea.value = code.textContent;
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+
+                document.body.appendChild(textarea);
+
+                textarea.select();
+
+                const copied = document.execCommand("copy");
+
+                textarea.remove();
+
+                button.textContent = copied
+                    ? "Copied!"
+                    : "Copy failed";
+
             }
 
             setTimeout(() => {
+
                 button.textContent = originalText;
-            }, 1600);
+
+            }, 1800);
+
         });
+
     });
 
-    // ---------------------------------------
-    // DOCUMENTATION SEARCH
-    // ---------------------------------------
+    // =====================================
+    // INITIAL HASH NAVIGATION
+    // =====================================
 
-    const sections = [...document.querySelectorAll(".doc-section")];
+    function syncInitialHash() {
 
-    const searchItems = sections.map(section => ({
-        id: section.id,
-        title: section.querySelector("h1, h2")?.innerText || section.id,
-        text: section.innerText.toLowerCase()
-    }));
+        const id = decodeURIComponent(
+            window.location.hash.slice(1)
+        );
 
-    function renderSearch(query) {
-        if (!searchResults) return;
-
-        const normalized = query.trim().toLowerCase();
-
-        if (!normalized) {
-            searchResults.classList.remove("show");
-            searchResults.setAttribute("hidden", "true");
-            searchResults.innerHTML = "";
-            return;
-        }
-
-        const matches = searchItems.filter(item =>
-            item.title.toLowerCase().includes(normalized) ||
-            item.text.includes(normalized)
-        ).slice(0, 8);
-
-        searchResults.innerHTML = "";
-
-        if (!matches.length) {
-            searchResults.innerHTML =
-                '<div class="search-empty" style="padding: 12px; color: var(--muted); font-size: 13px;">No documentation results found.</div>';
-        } else {
-            matches.forEach(item => {
-                const link = document.createElement("a");
-                link.href = `#${item.id}`;
-                link.textContent = item.title;
-                link.className = "search-result-item";
-
-                link.addEventListener("click", () => {
-                    searchResults.classList.remove("show");
-                    searchResults.setAttribute("hidden", "true");
-                    searchInput.value = "";
-                });
-
-                searchResults.appendChild(link);
-            });
-        }
-
-        searchResults.classList.add("show");
-        searchResults.removeAttribute("hidden");
-    }
-
-    searchInput?.addEventListener("input", event => {
-        renderSearch(event.target.value);
-    });
-
-    searchInput?.addEventListener("focus", () => {
-        if (searchInput.value.trim()) {
-            renderSearch(searchInput.value);
-        }
-    });
-
-    document.addEventListener("click", event => {
-        if (
-            !event.target.closest(".topbar-center") &&
-            !event.target.closest(".search-wrapper") &&
-            searchResults
-        ) {
-            searchResults.classList.remove("show");
-            searchResults.setAttribute("hidden", "true");
-        }
-    });
-
-    // Ctrl + K / Cmd + K
-    document.addEventListener("keydown", event => {
-        if (
-            (event.ctrlKey || event.metaKey) &&
-            event.key.toLowerCase() === "k"
-        ) {
-            event.preventDefault();
-            searchInput?.focus();
-        }
-    });
-
-    // ---------------------------------------
-    // ACTIVE SIDEBAR + TABLE OF CONTENTS
-    // ---------------------------------------
-
-    const sidebarLinks = [
-        ...document.querySelectorAll(".left-sidebar .nav-link, .sidebar .nav-link")
-    ];
-
-    const tocLinks = [
-        ...document.querySelectorAll("#pageToc a, .toc-nav a")
-    ];
-
-    const allNavigationLinks = [...sidebarLinks, ...tocLinks];
-
-    function setActiveSection(id) {
-        allNavigationLinks.forEach(link => {
-            const href = link.getAttribute("href");
-            const active = href === `#${id}`;
-
-            link.classList.toggle("active", active);
-
-            if (active && link.closest(".category-list, .sidebar-group")) {
-                const group = link.closest(".category-list, .sidebar-group");
-                group.classList.remove("collapsed");
-
-                const toggle = group.previousElementSibling;
-                toggle?.setAttribute("aria-expanded", "true");
-            }
-        });
-    }
-
-    const observer = new IntersectionObserver(entries => {
-        const visible = entries
-            .filter(entry => entry.isIntersecting)
-            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-        if (visible.length) {
-            setActiveSection(visible[0].target.id);
-        }
-    }, {
-        rootMargin: "-15% 0px -70% 0px",
-        threshold: [0, 0.1, 0.25, 0.5]
-    });
-
-    sections.forEach(section => observer.observe(section));
-
-    // ---------------------------------------
-    // SMOOTH INTERNAL NAVIGATION
-    // ---------------------------------------
-
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener("click", event => {
-            const href = link.getAttribute("href");
-            if (href === "#") return;
-
-            const id = href.slice(1);
-            const target = document.getElementById(id);
-
-            if (!target) return;
-
-            event.preventDefault();
-
-            target.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-            history.replaceState(null, "", `#${id}`);
+        if (id && document.getElementById(id)) {
             setActiveSection(id);
-        });
-    });
-
-    // ---------------------------------------
-    // INITIAL HASH
-    // ---------------------------------------
-
-    if (location.hash) {
-        const target = document.querySelector(location.hash);
-
-        if (target) {
-            setTimeout(() => {
-                target.scrollIntoView({ behavior: "instant" });
-                setActiveSection(target.id);
-            }, 100);
         }
+
     }
+
+    syncInitialHash();
+
+    window.addEventListener("hashchange", syncInitialHash);
+
 });
